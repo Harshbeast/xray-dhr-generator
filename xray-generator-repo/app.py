@@ -6,7 +6,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_LEFT, TA_CENTER 
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
 
 # --- EMBEDDED DHR DATA ---
 # This acts as your permanent dhr.csv file
@@ -149,14 +149,14 @@ def create_pdf_bytes(dataframe):
         elements.append(Spacer(1, 10))
 
         subset = dataframe.iloc[i : i + rows_per_page]
-        t_header = ['S.no', 'Description', 'Tube kV', 'LSL kV', 'USL kV','LSL mA', 'USL mA', 'Set mA', 'Act kV', 'Status']
+        t_header = ['S.no', 'Description', 'Tube kV', 'LSL kV', 'Act kV','USL kV','LSL mA','Set mA', 'USL mA',   'Status']
         t_data = [t_header]
         
         for _, row in subset.iterrows():
             t_data.append([
                 row['S.no'], Paragraph(str(row['Test parameter/Description']), styles['Normal']), 
-                row['Tube potential [kV]'], row['LSL [kV]'], row['USL [kV]'],
-                row['LSL [mA]'], row['USL [mA]'], row['Set mA'], row['Act kV'], row['Status']
+                row['Tube potential [kV]'], row['LSL [kV]'], row['Act kV'], row['USL [kV]'],
+                row['LSL [mA]'], row['Set mA'], row['USL [mA]'],  row['Status']
             ])
 
         main_table = Table(t_data, colWidths=[25, 140, 40, 40, 40, 40, 40, 40, 40, 40])

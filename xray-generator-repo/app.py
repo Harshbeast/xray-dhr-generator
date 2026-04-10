@@ -6,7 +6,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_LEFT, TA_CENTER
+from reportlab.lib.enums import TA_LEFT, TA_CENTER 
 
 # --- EMBEDDED DHR DATA ---
 # This acts as your permanent dhr.csv file

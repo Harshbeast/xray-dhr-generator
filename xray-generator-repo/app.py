@@ -112,7 +112,8 @@ def extract_txt_data(uploaded_file):
     mask = df['Set mA'].shift(-1) != df['Set mA']
     return df.loc[mask].copy()
 
-def create_pdf_bytes(dataframe):
+# ADDED doc_id and rev_no as arguments here
+def create_pdf_bytes(dataframe, doc_id, rev_no, Page_no, Total_Page):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
     elements = []
@@ -125,13 +126,14 @@ def create_pdf_bytes(dataframe):
     center_style = ParagraphStyle('center', fontSize=10, leading=12, alignment=TA_CENTER)
     
     for i in range(0, total_rows, rows_per_page):
-        page_num = 37 + (i // rows_per_page)
+        page_num = Page_no + (i // rows_per_page)
         
         header_data = [
             [
                 Paragraph("<b>PHILIPS<br/>Healthcare<br/>Imaging Systems</b><br/>HIC Pune India", center_style), 
                 Paragraph("<b>Device History Record<br/>System Verification & &amp; AERB Zenition 30</b>", center_style),
-                Paragraph(f"Doc Id: D001003021<br/>Rev No: U<br/>Page No: {page_num} of 45", left_style)
+                # Using the dynamic inputs here
+                Paragraph(f"Doc Id: {doc_id}<br/>Rev No: {rev_no}<br/>Page No: {page_num} of {Total_Page}", left_style)
             ],
         ]
         h_table = Table(header_data, colWidths=[150, 240, 150])
@@ -191,6 +193,22 @@ def create_pdf_bytes(dataframe):
 st.set_page_config(page_title="Philips DHR Generator", layout="wide")
 st.title("📄 X-Ray DHR Report Generator")
 
+# --- NEW INPUT SECTION ---
+st.subheader("Report Header Details")
+col_id, col_rev, page_no, Total_page= st.columns(4)
+with col_id:
+    user_doc_id = st.text_input("Document ID", value="D001003021")
+with col_rev:
+    user_rev_no = st.text_input("Revision Number", value="U")
+with page_no:
+    page_no=st.number_input("Page No.",value=37)
+with Total_page:
+    Total_page=st.number_input("Total Pages",value=45)
+# -------------------------
+if Total_page < (page_no+5):
+    st.error(f"❌ **Validation Error:** Total Pages ({Total_page}) must be greater than or equal to Start Page No. ({page_no})")
+    # We stop execution of the rest of the app for this section
+    st.stop()
 # Load dhr.csv from the embedded string automatically
 dhr_base = pd.read_csv(io.StringIO(DHR_CSV_DATA))
 
@@ -221,7 +239,8 @@ if txt_file:
             # 3. Generate PDF
             if st.button("Generate Final PDF Report"):
                 with st.spinner("Building PDF..."):
-                    pdf_data = create_pdf_bytes(dhr)
+                    # Pass the user inputs into the PDF function
+                    pdf_data = create_pdf_bytes(dhr, user_doc_id, user_rev_no,page_no,Total_page)
                     st.download_button(
                         label="📥 Download DHR_Testing_Report.pdf",
                         data=pdf_data,
